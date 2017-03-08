@@ -24,6 +24,7 @@ public class JdbcClass {
     private static final String dbName = "log";
     private static final String username = "root";
     private static final String password = "sagar123";
+  
     
     /*
      * JDBC Driver details
@@ -71,8 +72,23 @@ public class JdbcClass {
     
     String randomName(){
         Random r = new Random();
-        int num = r.nextInt(9000000) + 1000000;
-        return Integer.toString(num);
+        String id;
+        
+        while(true){
+            int num = r.nextInt(9000000) + 1000000;
+            id =  Integer.toString(num);
+            try{
+                stmt = conn.createStatement();
+                String str = "select * from info where folderID = '" + id + "'";
+                 ResultSet rs = stmt.executeQuery(str);
+                    if(rs.next() == false){
+                            return id;
+                    }
+                 
+            } catch (SQLException ex) {
+            Logger.getLogger(JdbcClass.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        }
     }
     
     void createDatabase(){
@@ -82,10 +98,12 @@ public class JdbcClass {
         conn.setCatalog(dbName);  
         stmta = conn.createStatement();
         String s = " create table info " +
-                " ( folderID Integer not null auto_increment, " +
+                " ( folderID Integer not null, " +
                 " name varchar (255) not null, " + 
-                " Password varchar(255) not null, "
-                + " primary key (folderID))  ";
+                " password varchar(255) not null, " +
+                " algorithm varchar (255) not null, " +
+                " transformation varchar (255) not null, " +
+                 " primary key (name, password), unique key(folderID) )";
         stmta.executeUpdate(s);
         }
         catch(SQLException e){
@@ -93,32 +111,18 @@ public class JdbcClass {
         }
     }
     
-    boolean isUnique(String id){
-            try{
-                stmt = conn.createStatement();
-                String str = "select * from info where folderID = '" + id + "'";
-                 ResultSet rs = stmt.executeQuery(str);
-                    if(rs.next() == false){
-                            return true;
-                    }
-                    else
-                        return false;
-            } catch (SQLException ex) {
-            Logger.getLogger(JdbcClass.class.getName()).log(Level.SEVERE, null, ex);
-        }
-            return false;
-    }
-    
-    String findID(String s){
+  
+    ResultSet findID(String user, String pass){  // use rs.getString(1); to take string, use rs.next() to check if String exists
         try{
         stmt = conn.createStatement();
-        String str = "select folderID from info where password = '" + s + "'";
+        String str = "select folderID, algorithm, transformation from info where password = '" + pass
+                + "' and name = '" + user  + "'";
         ResultSet rs = stmt.executeQuery(str);
         if(rs.next() == false){
             return null;
         }
         else 
-            return rs.getString(1);
+            return rs;
          
         }catch(SQLException e){
             e.printStackTrace();
@@ -126,11 +130,12 @@ public class JdbcClass {
         return null;
     }
     
-    void saveID(String name, String pass){
+    void saveID(String name, String pass, String algo, String trans, String fold){
         try{
            stmt = conn.createStatement();
-           String s = "insert into info (name, password) values ( '" +
-                   name + "' , '" + pass + "' )";
+           String s = "insert into info (name, password, algorithm, transformation, folderID ) "
+                   + " values ( '" + name + "' , '" + pass +  "' , '"  + algo + "', '"
+                   + trans + "' , '" + fold + "' )";
            stmt.executeUpdate(s);
             
         }catch(SQLException e){
@@ -146,12 +151,28 @@ public class JdbcClass {
         }
     }
     
- /*   public static void main(String[] args){
+    void removeEntry(String id){
+        
+           try{
+           stmt = conn.createStatement();
+           String s = "delete from  info where folderID = '" + id  + " '";
+           stmt.executeUpdate(s);
+            
+        }catch(SQLException e){
+            e.printStackTrace();
+        }      
+    }
+    
+   /* public static void main(String[] args){
         JdbcClass h = new JdbcClass();
         h.checkExistence();
-        h.saveID("sagar", "sharma");
-        String s =h.findID("sharma");
-        System.out.println(s);
+        h.saveID("sagar", "sharma", "Blowfish", "Blowfish", "2234567");
+   //     ResultSet s =h.findID("sagar", "sharma");
+     /*   try {
+           System.out.println(s.getString(1) + " " + s.getString(2)  + " "  + s.getString(3));
+        } catch (SQLException ex) {
+            Logger.getLogger(JdbcClass.class.getName()).log(Level.SEVERE, null, ex);
+        }
         h.closeConnection();
     }*/
 }

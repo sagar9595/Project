@@ -19,7 +19,7 @@ import java.util.logging.Logger;
  */
 public class ProjPID extends Thread {
 
-    private  void deleteDirectory(File element) {
+    void deleteDirectory(File element) {
        
     if (element.isDirectory()) {
         for (File sub : element.listFiles()) {
@@ -200,32 +200,31 @@ public class ProjPID extends Thread {
         }
     }
     /**
-     * @param args the command line arguments
      * @throws java.io.IOException
      * @throws java.lang.InterruptedException
      */
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void Integration(String name, String algo, String trans) throws IOException, InterruptedException {
         
-        Zip z = new Zip("abcd");
-        Encryption e = new Encryption("Blowfish", "Blowfish", "Maryasda", "abcd");
+        Zip z = new Zip(name);
+        Encryption e = new Encryption(algo, algo, "Maryasda", name);
         
         try {
         
         e.decrypt();
-        File f = new File("D:\\DSS\\encryption\\" + "abcd.zip");
+        File f = new File("D:\\DSS\\encryption\\" + name + ".zip");
         f.delete();
         z.extract();
-        f = new File("D:\\DSS\\encryption\\" + "abcd.zipe");
+        f = new File("D:\\DSS\\encryption\\" + name + ".zipe");
         f.delete();
         ProjPID p = new ProjPID();
         
-        p.createProc("D:\\DSS\\decryption\\abcd");
+        p.createProc("D:\\DSS\\decryption\\" + name);
         System.out.println("Destroyed!!!!!!");
         z.zipFolder();
         e.encrypt();
-        f = new File("D:\\DSS\\decryption\\" + "abcd.zipe");
+        f = new File("D:\\DSS\\decryption\\" + name + ".zipe");
         f.delete();
-         p.deleteDirectory(new File("D:\\DSS\\decryption\\" + "abcd"));
+         p.deleteDirectory(new File("D:\\DSS\\decryption\\" + name));
         } 
         catch (CryptoException ex) {
             Logger.getLogger(ProjPID.class.getName()).log(Level.SEVERE, null, ex);

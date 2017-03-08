@@ -5,10 +5,16 @@
  */
 package test;
 
+import java.io.File;
 import java.util.*;  
   
 public class Test {  
-   public static void main(String[] args) {
+    String hi;
+     void func(Test s){
+        s = new Test();
+        s.hi = "yooooo!!!";
+    }
+   public  static void main(String[] args) {
          String s = "sagar sharma";
        StringTokenizer st = new StringTokenizer(s);  
        
@@ -22,5 +28,15 @@ public class Test {
            str[1] = "sagar";
            str[2] = "sharma";
            System.out.println(str[1] + " " + str[2]);
+           
+           Test b = new Test();
+           Test c = new Test();
+           b.hi = "hellllo!!!!!";
+           System.out.println(b.hi);
+           c.func(b);
+           System.out.println(b.hi);
+           
+           File f = new File("D:\\DSS\\encryption\\" + "2234567");
+           System.out.println(f.exists());
    }      
 }  
