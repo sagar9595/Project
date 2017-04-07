@@ -184,16 +184,16 @@ public class ProjPID extends Thread {
             afterCreation();
             int id = findPID();
             System.out.println(id);
-            ProjPID p = new ProjPID();
-            p.start();
+          
+            this.start();
             while(ipr(id) != false){
-                if(!p.isAlive()){
+                if(!this.isAlive()){
                      Runtime.getRuntime().exec("taskkill /PID " + id + " /F ");
                     break;
                 }
             }
-            if(p.isAlive()){
-                p.interrupt();
+            if(this.isAlive()){
+                this.interrupt();
             }
         } catch (IOException | InterruptedException ex) {
             Logger.getLogger(ProjPID.class.getName()).log(Level.SEVERE, null, ex);
@@ -203,10 +203,10 @@ public class ProjPID extends Thread {
      * @throws java.io.IOException
      * @throws java.lang.InterruptedException
      */
-    public static void Integration(String name, String algo, String trans) throws IOException, InterruptedException {
+    public static void Integration(String name, String algo, String trans, String key) throws IOException, InterruptedException {
         
         Zip z = new Zip(name);
-        Encryption e = new Encryption(algo, algo, "Maryasda", name);
+        Encryption e = new Encryption(algo, algo, key, name);
         
         try {
         

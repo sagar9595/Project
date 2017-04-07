@@ -18,24 +18,16 @@ import java.util.logging.Logger;
  * @author Sagar
  */
 public class ProjPID extends Thread {
-
-    void deleteDirectory(File element) {
-       
-    if (element.isDirectory()) {
-        for (File sub : element.listFiles()) {
-            deleteDirectory(sub);
-        }
-    }
-    element.setWritable(true);
-    boolean c = element.delete();
-    if(!c)
-        System.out.println("NOt able to delete!!!!!!!!");
-    }
     
     String arr1[] = new String[100];      // Stores the pid before creating new process
     String arr2[] = new String[100];      // Stores pid after creating new process
     int count1 = 0, count2 = 0;         // Total number of ids
+    BluetoothConn bc;
     
+    ProjPID(BluetoothConn b){
+        bc = b;
+        
+    }
     /**
      * ipr - (is process running)
      * @param pid -takes pid and checks whether the given process is present or not
@@ -78,7 +70,9 @@ public class ProjPID extends Thread {
          while(true){
              try {
                  System.out.println("New thread");
-                 Thread.sleep(1000);
+                 Thread.sleep(5000);
+                 if(!bc.checkStatus())
+                     return;
           
            
              } catch (InterruptedException e) {
@@ -184,52 +178,50 @@ public class ProjPID extends Thread {
             afterCreation();
             int id = findPID();
             System.out.println(id);
-            ProjPID p = new ProjPID();
-            p.start();
+           
+            this.start();
             while(ipr(id) != false){
-                if(!p.isAlive()){
+                Thread.sleep(1000);
+                if(!this.isAlive()){
                      Runtime.getRuntime().exec("taskkill /PID " + id + " /F ");
                     break;
                 }
             }
-            if(p.isAlive()){
-                p.interrupt();
+            if(this.isAlive()){
+                this.interrupt();
             }
         } catch (IOException | InterruptedException ex) {
             Logger.getLogger(ProjPID.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     /**
+     * @param name name of the file
+     * @param algo algorithm used
+     * @param trans transformation used
+     * @param key key to decrypt
      * @throws java.io.IOException
      * @throws java.lang.InterruptedException
+     * @throws all.CryptoException
+     * @throws all.CantUnZipException
      */
-    public static void Integration(String name, String algo, String trans) throws IOException, InterruptedException {
+    static void Integration(String name, String algo, String trans, String key, BluetoothConn bc) throws IOException, InterruptedException, CryptoException, CantUnZipException, Exception {
         
         Zip z = new Zip(name);
-        Encryption e = new Encryption(algo, algo, "Maryasda", name);
-        
-        try {
-        
+        Encryption e = new Encryption(algo, algo, key, name);        
         e.decrypt();
-        File f = new File("D:\\DSS\\encryption\\" + name + ".zip");
-        f.delete();
+        FileHandler.deleteFile("D:\\DSS\\encryption\\" + name + ".zip");
+      
         z.extract();
-        f = new File("D:\\DSS\\encryption\\" + name + ".zipe");
-        f.delete();
-        ProjPID p = new ProjPID();
+        FileHandler.deleteFile("D:\\DSS\\encryption\\" + name + ".zipe");
+        ProjPID p = new ProjPID(bc);
         
         p.createProc("D:\\DSS\\decryption\\" + name);
         System.out.println("Destroyed!!!!!!");
         z.zipFolder();
         e.encrypt();
-        f = new File("D:\\DSS\\decryption\\" + name + ".zipe");
-        f.delete();
-         p.deleteDirectory(new File("D:\\DSS\\decryption\\" + name));
-        } 
-        catch (CryptoException ex) {
-            Logger.getLogger(ProjPID.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (Exception ex) {
-            Logger.getLogger(ProjPID.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        FileHandler.deleteFile("D:\\DSS\\decryption\\" + name + ".zipe");
+        
+        FileHandler.deleteDirectory(new File("D:\\DSS\\decryption\\" + name));
+       
     }
 }

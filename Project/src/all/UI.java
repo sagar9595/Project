@@ -50,12 +50,12 @@ public class UI {
     
         JdbcClass  db = new JdbcClass();  // Database Creation
         db.checkExistence();
-           
+        int i;
         OUTER:
         while (true) {
             showMenu1();
             Scanner sc = new Scanner(System.in);
-            int choice;
+            int choice, keysize;
             ResultSet rs;
             String algo, trans, user, pass, id, path;
             choice = sc.nextInt();
@@ -76,6 +76,9 @@ public class UI {
                   System.out.println("Enter the algorithm and transformation to be used");
                   algo = sc.nextLine();
                   trans = sc.nextLine();
+                  System.out.println("Enter the algorithm key size");
+                  keysize = sc.nextInt();
+                  sc.nextLine();
                   System.out.println("Enter the location of folder");
                   path = sc.nextLine();
                   File fc = new File(path);
@@ -84,9 +87,13 @@ public class UI {
                       break;
                   }
                   DirectoryMove(path, "D:\\DSS\\decryption\\" + id);
-                  db.saveID(user, pass, algo, trans, id);
+                  db.saveID(user, pass, algo, trans, id, keysize);
                   Zip z = new Zip(id);
-                  Encryption e = new Encryption(algo, trans, "Maryasda" , id);
+                  
+                    for(i = pass.length(); i <= keysize + 1; i++ )
+                        pass = pass + "x";
+                    pass = pass.substring(0, keysize);
+                  Encryption e = new Encryption(algo, trans, pass , id);
             {
                 try {
                     z.zipFolder();
@@ -112,11 +119,16 @@ public class UI {
                     pass = sc.nextLine();
                     System.out.println("Password is    " + pass);
                     rs = db.findID(user, pass);
+                    
                     // db.checkId();
                     if(rs == null){
                         System.out.println("Not a valid user, plz register first");
                         continue;
-                    }      
+                    }
+                    keysize = db.keysize;
+                    for(i = pass.length(); i <= keysize + 1; i++ )
+                        pass = pass + "x";
+                    pass = pass.substring(0, keysize);
                     id = rs.getString(1);
                     algo = rs.getString(2);
                     trans = rs.getString(3);
@@ -129,7 +141,7 @@ public class UI {
                     }
             {
                 try {
-                    Integration(id, algo, trans);
+                    Integration(id, algo, trans, pass);
                 } catch (IOException | InterruptedException ex) {
                     Logger.getLogger(UI.class.getName()).log(Level.SEVERE, null, ex);
                 }

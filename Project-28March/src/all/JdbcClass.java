@@ -31,6 +31,7 @@ public class JdbcClass {
     */
     static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
     static final String DB_URL = "jdbc:mysql://localhost:3306/";
+    int keysize ;
     
     Connection conn = null;
     Statement stmt = null;
@@ -103,6 +104,7 @@ public class JdbcClass {
                 " password varchar(255) not null, " +
                 " algorithm varchar (255) not null, " +
                 " transformation varchar (255) not null, " +
+                "keySize Integer, " + 
                  " primary key (name, password), unique key(folderID) )";
         stmta.executeUpdate(s);
         }
@@ -112,17 +114,21 @@ public class JdbcClass {
     }
     
   
-    ResultSet findID(String user, String pass){  // use rs.getString(1); to take string, use rs.next() to check if String exists
+    ResultSet findID(String user){  // use rs.getString(1); to take string, use rs.next() to check if String exists
         try{
         stmt = conn.createStatement();
-        String str = "select folderID, algorithm, transformation from info where password = '" + pass
-                + "' and name = '" + user  + "'";
+        String str = "select password, folderID, algorithm, transformation, keySize from info where "
+                + "name = '" + user  + "'";
         ResultSet rs = stmt.executeQuery(str);
+        ResultSet rs1 = rs;
+        
         if(rs.next() == false){
             return null;
         }
-        else 
+        else {
+            keysize = rs1.getInt("keySize");
             return rs;
+        }
          
         }catch(SQLException e){
             e.printStackTrace();
@@ -130,12 +136,12 @@ public class JdbcClass {
         return null;
     }
     
-    void saveID(String name, String pass, String algo, String trans, String fold){
+    void saveID(String name, String pass, String algo, String trans, String fold, int keysize){
         try{
            stmt = conn.createStatement();
-           String s = "insert into info (name, password, algorithm, transformation, folderID ) "
+           String s = "insert into info (name, password, algorithm, transformation, folderID , keySize) "
                    + " values ( '" + name + "' , '" + pass +  "' , '"  + algo + "', '"
-                   + trans + "' , '" + fold + "' )";
+                   + trans + "' , '" + fold + "'," + keysize +  " )";
            stmt.executeUpdate(s);
             
         }catch(SQLException e){
